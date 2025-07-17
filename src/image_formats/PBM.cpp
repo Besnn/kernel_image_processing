@@ -4,7 +4,7 @@
 #include <iostream>
 
 #include "PBM.h"
-#include "../core/types.h"
+#include "src/core/types.h"
 
 //PBM::PBM(u32 width, u32 height) : PNM(width, height) {
 //    this->magicNumber = P4;

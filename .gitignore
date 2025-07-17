@@ -1,0 +1,7 @@
+# ignore build
+cmake-build-debug
+# ignore clion
+.idea
+# misc
+tmp
+_.CMakeLists.txt

@@ -1,0 +1,3 @@
+C:/Users/besnn/CLionProjects/Kernel_Image_Processing/cmake-build-debug/CMakeFiles/Kernel_Image_Processing.dir
+C:/Users/besnn/CLionProjects/Kernel_Image_Processing/cmake-build-debug/CMakeFiles/edit_cache.dir
+C:/Users/besnn/CLionProjects/Kernel_Image_Processing/cmake-build-debug/CMakeFiles/rebuild_cache.dir

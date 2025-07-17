@@ -1,0 +1,21 @@
+# ninja log v5
+4	202	7744631157819354	build.ninja	ad283c3713e68082
+5	752	7744630316980966	CMakeFiles/Kernel_Image_Processing.dir/main.cpp.obj	e59d27d1de91168d
+393	549	1742240426442923033	Kernel_Image_Processing	f269afdd85568c06
+11	437	7744616380612269	CMakeFiles/Kernel_Image_Processing.dir/core/ImageContainer.cpp.obj	534b8de21d3e014f
+14	424	7744630051810739	CMakeFiles/Kernel_Image_Processing.dir/image_formats/PPM.cpp.obj	74c96832faaa54d0
+3	591	7744630053510970	CMakeFiles/Kernel_Image_Processing.dir/image_formats/PBM.cpp.obj	7373e7eb555126e7
+10	614	7744630053725175	CMakeFiles/Kernel_Image_Processing.dir/image_formats/PNM.cpp.obj	75bc26934dba875d
+19	691	7744630054489011	CMakeFiles/Kernel_Image_Processing.dir/codecs/PBMCodec.cpp.obj	9d480e0ecc922b58
+753	951	7744630318937784	Kernel_Image_Processing.exe	e369edb53aa6ffa8
+1	181	7744631157819354	build.ninja	ad283c3713e68082
+3	715	7744631165613974	CMakeFiles/Kernel_Image_Processing.dir/main.cpp.obj	e59d27d1de91168d
+715	908	7744631167524997	Kernel_Image_Processing.exe	e369edb53aa6ffa8
+5	712	7744633100311844	CMakeFiles/Kernel_Image_Processing.dir/main.cpp.obj	e59d27d1de91168d
+713	907	7744633102224554	Kernel_Image_Processing.exe	e369edb53aa6ffa8
+4	709	7744634409877803	CMakeFiles/Kernel_Image_Processing.dir/main.cpp.obj	e59d27d1de91168d
+709	902	7744634411771019	Kernel_Image_Processing.exe	e369edb53aa6ffa8
+3	761	7744635218387235	CMakeFiles/Kernel_Image_Processing.dir/main.cpp.obj	e59d27d1de91168d
+761	940	7744635220180261	Kernel_Image_Processing.exe	e369edb53aa6ffa8
+6	471	7744652498977178	CMakeFiles/Kernel_Image_Processing.dir/image_formats/PNM.cpp.obj	75bc26934dba875d
+471	662	7744652500860719	Kernel_Image_Processing.exe	e369edb53aa6ffa8

@@ -4,8 +4,7 @@
 
 #include "ImageContainer.h"
 
-ImageContainer::ImageContainer(u32 width, u32 height, std::vector<u8> &pixelData)
-: width(width), height(height), pixelData(pixelData) {}
+ImageContainer::ImageContainer(u32 width, u32 height, std::unique_ptr<PNM> image) : width(width), height(height), image(std::move(image)) {}
 
 ImageContainer::~ImageContainer() {
 

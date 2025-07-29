@@ -21,6 +21,7 @@ target_include_directories(kernel INTERFACE ${CMAKE_SOURCE_DIR}/src)
 # Main
 add_executable(Kernel_Image_Processing src/main.cpp
         src/netPBM_io.h
+        src/kernel.cpp
 )
 target_link_libraries(Kernel_Image_Processing PRIVATE kernel)
 

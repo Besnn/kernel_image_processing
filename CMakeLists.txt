@@ -22,12 +22,14 @@ target_include_directories(kernel INTERFACE ${CMAKE_SOURCE_DIR}/src)
 add_executable(Kernel_Image_Processing src/main.cpp
         src/netPBM_io.h
         src/kernel.cpp
+        src/MultiChannelImage.h
 )
 target_link_libraries(Kernel_Image_Processing PRIVATE kernel)
 
 # Test
 add_executable(Test tests/test_example.cpp
         src/netPBM_io.h
+        src/MultiChannelImage.h
 )
 target_link_libraries(Test PRIVATE gtest gtest_main kernel)
 #target_include_directories(

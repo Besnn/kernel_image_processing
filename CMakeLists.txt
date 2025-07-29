@@ -14,22 +14,20 @@ FetchContent_MakeAvailable(googletest)
 
 enable_testing()
 
-add_library(kernel STATIC
-        src/image_formats/PNM.h src/image_formats/PNM.cpp
-        src/image_formats/PBM.h src/image_formats/PBM.cpp
-        src/image_formats/PPM.h src/image_formats/PPM.cpp
-        src/core/ImageContainer.h src/core/ImageContainer.cpp
-        src/core/kernel.h src/core/types.h
-        src/codecs/PBMCodec.h src/codecs/PBMCodec.cpp)
+add_library(kernel INTERFACE)
 
-target_include_directories(kernel PUBLIC ${CMAKE_SOURCE_DIR}/src)
+target_include_directories(kernel INTERFACE ${CMAKE_SOURCE_DIR}/src)
 
 # Main
-add_executable(Kernel_Image_Processing src/main.cpp)
+add_executable(Kernel_Image_Processing src/main.cpp
+        src/netPBM_io.h
+)
 target_link_libraries(Kernel_Image_Processing PRIVATE kernel)
 
 # Test
-add_executable(Test tests/test_example.cpp)
+add_executable(Test tests/test_example.cpp
+        src/netPBM_io.h
+)
 target_link_libraries(Test PRIVATE gtest gtest_main kernel)
 #target_include_directories(
 #        Kernel_Image_Processing

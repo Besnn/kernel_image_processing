@@ -20,8 +20,10 @@ namespace Kernel {
 
     //TODO: rewrite
     template<u8 channel_num, typename T>
-    static MultiChannelImage<channel_num, T> apply(const MultiChannelImage<channel_num, T> & input,
-                        const std::vector<std::vector<float>>& kernel) {
+    static MultiChannelImage<channel_num, T> apply(
+        const MultiChannelImage<channel_num, T>& input,
+        const std::vector<std::vector<float>>& kernel
+    ) {
         int k_height = kernel.size();
         int k_width = kernel[0].size();
         int pad_y = k_height / 2;
@@ -39,17 +41,19 @@ namespace Kernel {
                         int iy = y + ky - pad_y;
 
                         if (ix >= 0 && ix < input.width && iy >= 0 && iy < input.height) {
-                            auto pixel = input.at(ix, iy);
+                            const auto& pixel = input.at(ix, iy);
                             float coeff = kernel[ky][kx];
-                            for (int c = 0; c < channel_num; ++c)
+                            for (int c = 0; c < channel_num; ++c) {
                                 acc[c] += pixel[c] * coeff;
+                            }
                         }
                     }
                 }
 
                 auto& out = output.at(x, y);
-                for (int c = 0; c < channel_num; ++c)
-                    out[c] = std::clamp<u8>(acc[c], 0, 255);
+                for (int c = 0; c < channel_num; ++c) {
+                    out[c] = static_cast<T>(std::clamp(acc[c], 0.f, 255.f));
+                }
             }
         }
 

@@ -57,7 +57,7 @@ public:
         file_signature = fileSignature;
     }
 
-private:
+public:
     ~MultiChannelImage();
 };
 
@@ -79,7 +79,9 @@ MultiChannelImage<channel_num, T>::MultiChannelImage(u32 width, u32 height,
     }
 }
 
-
-
+template<u8 channel_num, typename T>
+MultiChannelImage<channel_num, T>::~MultiChannelImage() {
+    //empty
+}
 
 #endif //MULTICHANNELIMAGE_H

@@ -8,8 +8,6 @@
 #include <map>
 #include <memory>
 #include <vector>
-#include <iostream>
-
 
 #include "types.h"
 
@@ -19,10 +17,45 @@ using Channel = std::vector<T>;
 template <u8 channel_num, typename T>
 class MultiChannelImage {
 public:
-    MultiChannelImage(u32 width, u32 height);
+    MultiChannelImage(u32 width, u32 height, std::vector<std::string> channel_keys);
 private:
+    std::string file_signature;
     u32 width, height;
     std::map<std::string, Channel<T> * > channels;
+
+public:
+    //FIXME: see what makes more sense design-wise (security)
+    const std::map<std::string, Channel<T> *> &getChannels() const {
+        return channels;
+    }
+
+    void setChannels(const std::map<std::string, Channel<T> *> &channels) {
+        MultiChannelImage::channels = channels;
+    }
+
+    u32 getHeight() const {
+        return height;
+    }
+
+    void setHeight(u32 height) {
+        MultiChannelImage::height = height;
+    }
+
+    u32 getWidth() const {
+        return width;
+    }
+
+    void setWidth(u32 width) {
+        MultiChannelImage::width = width;
+    }
+
+    const std::string &getFileSignature() const {
+        return file_signature;
+    }
+
+    void setFileSignature(const std::string &fileSignature) {
+        file_signature = fileSignature;
+    }
 
 private:
     ~MultiChannelImage();
@@ -30,19 +63,19 @@ private:
 
 
 template<u8 channel_num, typename T>
-MultiChannelImage<channel_num, T>::MultiChannelImage(u32 width, u32 height)
+MultiChannelImage<channel_num, T>::MultiChannelImage(u32 width, u32 height, std::vector<std::string> channel_keys)
 : width(width), height(height)
 {
-    //TODO: see what's to be added
+    if (channel_keys.size() < channel_num)
+        throw std::runtime_error("List of channel keys is shorter than expected.");
+
     this->channels = std::map<std::string, Channel<T> * >();
 
-    auto RChannel = new Channel<T>(width * height);
-    auto GChannel = new Channel<T>(width * height);
-    auto BChannel = new Channel<T>(width * height);
-
-    this->channels.emplace("R", std::move(RChannel));
-    this->channels.emplace("G", std::move(GChannel));
-    this->channels.emplace("B", std::move(BChannel));
+    Channel<T> * channel;
+    for (u8 i = 0; i < channel_num; i++) {
+        channel = new Channel<T>(width * width);
+        this->channels.emplace(channel_keys[i], std::move(channel));
+    }
 }
 
 

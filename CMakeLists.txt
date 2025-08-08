@@ -2,6 +2,14 @@ cmake_minimum_required(VERSION 3.25)
 project(Kernel_Image_Processing)
 
 set(CMAKE_CXX_STANDARD 17)
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Debug)
+endif()
+
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+
+
 include_directories(${CMAKE_SOURCE_DIR})
 include(FetchContent)
 
@@ -20,9 +28,7 @@ target_include_directories(kernel INTERFACE ${CMAKE_SOURCE_DIR}/src)
 
 # Main
 add_executable(Kernel_Image_Processing src/main.cpp
-        src/netPBM_io.h
         src/kernel.cpp
-        src/MultiChannelImage.h
 )
 target_link_libraries(Kernel_Image_Processing PRIVATE kernel)
 

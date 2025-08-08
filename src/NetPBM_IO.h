@@ -5,6 +5,6 @@
 #ifndef NETPBM_IO_H
 #define NETPBM_IO_H
 
-
+class NetPBM_IO {};
 
 #endif //NETPBM_IO_H

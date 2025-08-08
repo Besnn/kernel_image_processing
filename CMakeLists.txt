@@ -36,7 +36,7 @@ target_link_libraries(Kernel_Image_Processing PRIVATE kernel)
 
 # Test
 add_executable(Test tests/test_example.cpp
-        src/NetpbmIO.h
+        src/NetPBM_IO.h
         src/MultiChannelImage.h
 )
 target_link_libraries(Test PRIVATE gtest gtest_main kernel)

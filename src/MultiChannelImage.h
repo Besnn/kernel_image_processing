@@ -24,7 +24,7 @@ private:
     std::map<std::string, Channel<T> * > channels;
 
 public:
-    //FIXME: see what makes more sense design-wise (security)
+    //NOTE: see what makes more sense design-wise (security)
     const std::map<std::string, Channel<T> *> &getChannels() const {
         return channels;
     }
@@ -63,8 +63,9 @@ private:
 
 
 template<u8 channel_num, typename T>
-MultiChannelImage<channel_num, T>::MultiChannelImage(u32 width, u32 height, std::vector<std::string> channel_keys)
-: width(width), height(height)
+MultiChannelImage<channel_num, T>::MultiChannelImage(u32 width, u32 height,
+                                                     const std::vector<std::string> channel_keys)
+: width(width), height(height), file_signature("\0")
 {
     if (channel_keys.size() < channel_num)
         throw std::runtime_error("List of channel keys is shorter than expected.");

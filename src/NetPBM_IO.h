@@ -5,6 +5,9 @@
 #ifndef NETPBM_IO_H
 #define NETPBM_IO_H
 
-class NetPBM_IO {};
+class NetPBM_IO {
+public:
+//    static
+};
 
 #endif //NETPBM_IO_H

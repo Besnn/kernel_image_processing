@@ -10,3 +10,5 @@ TEST(simple_test, test0) {
 TEST(simple_test, test1) {
   EXPECT_EQ(0, 1-1);
 }
+
+//TODO: write tests for existing functionality

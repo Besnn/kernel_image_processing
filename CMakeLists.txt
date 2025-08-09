@@ -38,6 +38,8 @@ target_link_libraries(Kernel_Image_Processing PRIVATE kernel)
 add_executable(Test tests/test_example.cpp
         src/NetPBM_IO.h
         src/MultiChannelImage.h
+        tests/netpbm_factory_test.cpp
+        src/NetpbmImageFactory.cpp
 )
 target_link_libraries(Test PRIVATE gtest gtest_main kernel)
 #target_include_directories(

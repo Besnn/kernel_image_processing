@@ -25,6 +25,15 @@ private:
 
 public:
     //NOTE: see what makes more sense design-wise (security)
+
+    Channel<T> * getChannel(const std::string &key) {
+        auto iter = this->channels.find(key);
+        if (iter != this->channels.end()) {
+            return iter->second;
+        } else return nullptr;
+    }
+
+
     const std::map<std::string, Channel<T> *> &getChannels() const {
         return channels;
     }

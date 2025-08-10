@@ -14,8 +14,8 @@ using PPM = MultiChannelImage<3, u16>;
 
 class NetpbmImageFactory {
 public:
-    static std::unique_ptr<PPM> createPPM(u32 width, u32 height);
-    static std::unique_ptr<PGM> createPGM(u32 width, u32 height);
+    static std::unique_ptr<PPM> createPPM(u32 width, u32 height, u32 maxVal=255);
+    static std::unique_ptr<PGM> createPGM(u32 width, u32 height, u32 maxVal=255);
 };
 
 

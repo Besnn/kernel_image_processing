@@ -5,9 +5,16 @@
 #ifndef NETPBM_IO_H
 #define NETPBM_IO_H
 
+#include "NetpbmImageFactory.h"
+
 class NetPBM_IO {
 public:
-//    static
+    NetPBM_IO() = delete;
+
+    static std::unique_ptr<PPM> readPPMfromFile(const std::string &path);
+
+private:
+    static void skipComments(std::istream &is);
 };
 
 #endif //NETPBM_IO_H

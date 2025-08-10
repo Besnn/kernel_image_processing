@@ -1,6 +1,7 @@
 #include <iostream>
 #include <unistd.h>
 #include <NetpbmImageFactory.h>
+#include "NetPBM_IO.h"
 
 //TODO: add factory for images
 int main()
@@ -10,5 +11,6 @@ int main()
     auto ppm = NetpbmImageFactory::createPPM(1000, 1000);
     auto pgm = NetpbmImageFactory::createPGM(1000, 1000);
     auto x = ppm->getChannel("X");
+    auto y = NetPBM_IO::readPPMfromFile("../examples/example_1.ppm");
     //TODO: make NetpbmIO use factory
 }

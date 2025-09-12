@@ -98,6 +98,7 @@ std::unique_ptr<PPM> NetPBM_IO::readPPMfromFile(const std::string &path) {
             g_channel->at(i) = static_cast<u16>(pixel_buffer[i * 3 + 1]);
             b_channel->at(i) = static_cast<u16>(pixel_buffer[i * 3 + 2]);
         }
+        //TODO: delete this
         for (u32 i = 0; i < N; i++) {
             if (r_channel->at(i) != 0)
                 std::cout << std::to_string(i) << ": " << r_channel->at(i) << "\n";

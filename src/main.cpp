@@ -11,6 +11,6 @@ int main()
     auto ppm = NetpbmImageFactory::createPPM(1000, 1000);
     auto pgm = NetpbmImageFactory::createPGM(1000, 1000);
     auto x = ppm->getChannel("X");
-    auto y = NetPBM_IO::readPPMfromFile("../examples/example_2.ppm");
+    auto y = NetPBM_IO::readPPMfromFile("../examples/example_0.ppm");
     //TODO: make NetpbmIO use factory
 }

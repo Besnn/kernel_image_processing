@@ -9,8 +9,8 @@
 #include "MultiChannelImage.h"
 
 using PBM = MultiChannelImage<1, bool>;
-using PGM = MultiChannelImage<1, u16>;
-using PPM = MultiChannelImage<3, u16>;
+using PGM = MultiChannelImage<1, u8>;
+using PPM = MultiChannelImage<3, u8>;
 
 class NetpbmImageFactory {
 public:

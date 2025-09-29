@@ -21,19 +21,19 @@ public:
 private:
     std::string file_signature;
     u32 width, height;
-    std::map<std::string, std::unique_ptr<Channel<T>>> channels;
+    std::map<std::string, Channel<T> *> channels;
 
 public:
     //NOTE: see what makes more sense design-wise (security)
 
-    std::unique_ptr<Channel<T>> getChannel(const std::string &key) const {
+    Channel<T> * getChannel(const std::string &key) const {
         auto iter = this->channels.find(key);
         if (iter != this->channels.end()) {
-            return std::make_unique(new Channel<T>(iter->second));
+            return new Channel<T>(iter->second);
         } else return nullptr;
     }
 
-    void setChannel(const std::string key, const std::unique_ptr<Channel<T>> channel) {
+    void setChannel(const std::string key, const Channel<T> * channel) {
         auto iter = this->channels.find(key);
         if (iter != this->channels.end()) {
             iter->second = std::move(channel);
@@ -43,7 +43,7 @@ public:
 
     //NOTE: does it make sense to make a copy? why?
     //NOTE: do I even need this?
-    const std::map<std::string, std::unique_ptr<Channel<T>>> &getChannels() const {
+    const std::map<std::string, Channel<T>> &getChannels() const {
         return channels;
     }
 

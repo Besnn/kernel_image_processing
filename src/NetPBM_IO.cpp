@@ -21,7 +21,7 @@ void NetPBM_IO::skipComments(std::istream &is) {
     }
 }
 
-std::unique_ptr<PPM> NetPBM_IO::readPPMfromFile(const std::string &path) {
+PPM * NetPBM_IO::readPPMfromFile(const std::string &path) {
     std::ifstream file(path, std::ios::binary);
     if (!file) {
         throw std::runtime_error("Cannot access file: " + path);
@@ -104,11 +104,11 @@ std::unique_ptr<PPM> NetPBM_IO::readPPMfromFile(const std::string &path) {
             b_channel->at(i) = pixel_buffer[i * 3 + 2];
         }
         //NOTE: make getChannels return copies, but make it so channels are unique pointers
-        auto channels = std::map<std::string, Channel<u8> *>();
-        channels.insert(std::make_pair("R", std::move(r_channel)));
+        auto channels = std::map<std::string, std::unique_ptr<Channel<u8>>>();
+        channels.insert(std::make_pair("R", (std::move(r_channel))));
         channels.insert(std::make_pair("G", std::move(g_channel)));
         channels.insert(std::make_pair("B", std::move(b_channel)));
-        ppm->setChannels(channels);
+        auto iter = ppm->getChannels();
 //        TODO: delete this
 //        for (u32 i = 0; i < N; i++) {
 //            if (r_channel->at(i) != 0)

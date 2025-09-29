@@ -75,7 +75,8 @@ PPM * NetPBM_IO::readPPMfromFile(const std::string &path) {
 
     const u8 channel_count = 3;
 
-    std::vector<u8> pixel_buffer(channel_count * width * height);
+    std::vector<u8> pixel_buffer;
+    pixel_buffer.resize(channel_count * width * height);
 
     if (format == 1 || format == 2 || format == 3) {
         // ASCII formats
@@ -92,34 +93,35 @@ PPM * NetPBM_IO::readPPMfromFile(const std::string &path) {
         if (!file) {
             throw std::runtime_error("File ended before expected pixel data");
         }
-        auto r_channel = std::make_unique<Channel<u8>>(width * height);
-        auto g_channel = std::make_unique<Channel<u8>>(width * height);
-        auto b_channel = std::make_unique<Channel<u8>>(width * height);
+        auto r_channel = new Channel<u8>(width * height);
+        auto g_channel = new Channel<u8>(width * height);
+        auto b_channel = new Channel<u8>(width * height);
 
-        u32 N = pixel_buffer.size() / 3;
-        const u8 * p = pixel_buffer.data();
+        u32 N = r_channel->size();
         for (u32 i = 0; i < N; ++i) {
-            r_channel->at(i) = pixel_buffer[i * 3 + 0];
-            g_channel->at(i) = pixel_buffer[i * 3 + 1];
-            b_channel->at(i) = pixel_buffer[i * 3 + 2];
+            (*r_channel)[i] = pixel_buffer[i * 3 + 0];
+            (*g_channel)[i] = pixel_buffer[i * 3 + 1];
+            (*b_channel)[i] = pixel_buffer[i * 3 + 2];
         }
-        //NOTE: make getChannels return copies, but make it so channels are unique pointers
-        auto channels = std::map<std::string, std::unique_ptr<Channel<u8>>>();
-        channels.insert(std::make_pair("R", (std::move(r_channel))));
-        channels.insert(std::make_pair("G", std::move(g_channel)));
-        channels.insert(std::make_pair("B", std::move(b_channel)));
-        auto iter = ppm->getChannels();
-//        TODO: delete this
+        //NOTE: soooo??
+//        auto channels = std::map<std::string, Channel<u8> *>();
+//        channels.insert(std::make_pair("R", r_channel));
+//        channels.insert(std::make_pair("G", g_channel));
+//        channels.insert(std::make_pair("B", b_channel));
+        ppm->setChannel("R", r_channel);
+        ppm->setChannel("G", g_channel);
+        ppm->setChannel("B", b_channel);
+//        auto iter = ppm->getChannels();
+////        TODO: delete this
 //        for (u32 i = 0; i < N; i++) {
-//            if (r_channel->at(i) != 0)
-//                std::cout << std::to_string(i) << ": " << r_channel->at(i) << "\n";
+//                std::cout << std::to_string(i) << ": " << (*r_channel)[i] << "\n";
 //        }
     }
 
     return ppm;
 }
 
-void NetPBM_IO::writePPMtoFile(std::unique_ptr<PPM> ppm, const std::string &path) {
+void NetPBM_IO::writePPMtoFile(PPM * ppm, const std::string &path) {
     std::ofstream file(path, std::ios::binary);
     if (!file) {
         throw std::runtime_error("Cannot access file: " + path);
@@ -131,25 +133,38 @@ void NetPBM_IO::writePPMtoFile(std::unique_ptr<PPM> ppm, const std::string &path
 //    std:: cout << std::to_string(channel_count);
 
     file << file_signature;
-    std::vector<u8> pixel_buffer(channel_count * height * width);
+    std::vector<u8> pixel_buffer;
+    pixel_buffer.resize(channel_count * height * width);
 
     auto r_channel = ppm->getChannel("R");
     auto g_channel = ppm->getChannel("G");
     auto b_channel = ppm->getChannel("B");
 
-    u32  N = r_channel->size();
-    flag non_zero = false;
-    for (u32 i = 0; i < N; i++) {
-        pixel_buffer.at(i * 3 + 0) = r_channel->at(i);
-        if (r_channel->at(i) != 0) non_zero = true;
-        pixel_buffer.at(i * 3 + 1) = g_channel->at(i);
-        if (g_channel->at(i) != 0) non_zero = true;
-        pixel_buffer.at(i * 3 + 2) = b_channel->at(i);
-        if (b_channel->at(i) != 0) non_zero = true;
-    }
-    std::cout << std::to_string(non_zero);
+    //TODO: actually set the channels
+    u32 N = r_channel->size();
+    u32 i = 0;
+//    try {
+        for (; i < N; i++) {
+            pixel_buffer[i * 3 + 0] = (*r_channel)[i];
+            pixel_buffer[i * 3 + 1] = (*g_channel)[i];
+            pixel_buffer[i * 3 + 2] = (*b_channel)[i];
+        }
+//    } catch (...) {
+//        std::cout << std::to_string(i);
+//    }
+//    u32  n = r_channel->size();
+//    flag non_zero = false;
+//    for (u32 i = 0; i < n; i++) {
+//        pixel_buffer.at(i * 3 + 0) = r_channel->at(i);
+//        if (r_channel->at(i) != 0) non_zero = true;
+//        pixel_buffer.at(i * 3 + 1) = g_channel->at(i);
+//        if (g_channel->at(i) != 0) non_zero = true;
+//        pixel_buffer.at(i * 3 + 2) = b_channel->at(i);
+//        if (b_channel->at(i) != 0) non_zero = true;
+//    }
+//    std::cout << std::to_string(non_zero);
 
-    file.write(reinterpret_cast<const char *>(pixel_buffer.data()), pixel_buffer.size());
+    file.write(reinterpret_cast<char *>(pixel_buffer.data()), pixel_buffer.size());
 
     return;
 }

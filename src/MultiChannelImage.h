@@ -26,24 +26,24 @@ private:
 public:
     //NOTE: see what makes more sense design-wise (security)
 
-    Channel<T> * getChannel(const std::string &key) const {
+    Channel<T> * getChannel(const std::string &key) {
         auto iter = this->channels.find(key);
         if (iter != this->channels.end()) {
-            return new Channel<T>(iter->second);
+            return iter->second;
         } else return nullptr;
     }
 
-    void setChannel(const std::string key, const Channel<T> * channel) {
+    void setChannel(const std::string key, Channel<T> * channel) {
         auto iter = this->channels.find(key);
         if (iter != this->channels.end()) {
-            iter->second = std::move(channel);
+            iter->second = channel;
         }
         //NOTE: does it throw a runtime exception if it fails? or does it fail silently
     }
 
     //NOTE: does it make sense to make a copy? why?
     //NOTE: do I even need this?
-    const std::map<std::string, Channel<T>> &getChannels() const {
+    const std::map<std::string, Channel<T> *> &getChannels() const {
         return channels;
     }
 

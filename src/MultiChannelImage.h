@@ -21,26 +21,35 @@ public:
 private:
     std::string file_signature;
     u32 width, height;
-    std::map<std::string, Channel<T> * > channels;
+    std::map<std::string, std::unique_ptr<Channel<T>>> channels;
 
 public:
     //NOTE: see what makes more sense design-wise (security)
 
-    Channel<T> * getChannel(const std::string &key) {
+    std::unique_ptr<Channel<T>> getChannel(const std::string &key) const {
         auto iter = this->channels.find(key);
         if (iter != this->channels.end()) {
-            return iter->second;
+            return std::make_unique(new Channel<T>(iter->second));
         } else return nullptr;
     }
 
+    void setChannel(const std::string key, const std::unique_ptr<Channel<T>> channel) {
+        auto iter = this->channels.find(key);
+        if (iter != this->channels.end()) {
+            iter->second = std::move(channel);
+        }
+        //NOTE: does it throw a runtime exception if it fails? or does it fail silently
+    }
 
-    const std::map<std::string, Channel<T> *> &getChannels() const {
+    //NOTE: does it make sense to make a copy? why?
+    //NOTE: do I even need this?
+    const std::map<std::string, std::unique_ptr<Channel<T>>> &getChannels() const {
         return channels;
     }
 
-    void setChannels(const std::map<std::string, Channel<T> *> &channels) {
-        MultiChannelImage::channels = channels;
-    }
+//    void setChannels(std::map<std::string, std::unique_ptr<Channel<T>>> channels) {
+//        MultiChannelImage::channels = channels;
+//    }
 
     u32 getHeight() const {
         return height;

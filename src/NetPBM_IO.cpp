@@ -24,7 +24,7 @@ void NetPBM_IO::skipComments(std::istream &is) {
 std::unique_ptr<PPM> NetPBM_IO::readPPMfromFile(const std::string &path) {
     std::ifstream file(path, std::ios::binary);
     if (!file) {
-        throw std::runtime_error("Cannot open file: " + path);
+        throw std::runtime_error("Cannot access file: " + path);
     }
     //FIXME: make it only for PPM files
     std::string magic;
@@ -99,19 +99,58 @@ std::unique_ptr<PPM> NetPBM_IO::readPPMfromFile(const std::string &path) {
         u32 N = pixel_buffer.size() / 3;
         const u8 * p = pixel_buffer.data();
         for (u32 i = 0; i < N; ++i) {
-            r_channel->at(i) = static_cast<u8>(pixel_buffer[i * 3 + 0]);
-            g_channel->at(i) = static_cast<u8>(pixel_buffer[i * 3 + 1]);
-            b_channel->at(i) = static_cast<u8>(pixel_buffer[i * 3 + 2]);
+            r_channel->at(i) = pixel_buffer[i * 3 + 0];
+            g_channel->at(i) = pixel_buffer[i * 3 + 1];
+            b_channel->at(i) = pixel_buffer[i * 3 + 2];
         }
+        //NOTE: make getChannels return copies, but make it so channels are unique pointers
+        auto channels = std::map<std::string, Channel<u8> *>();
+        channels.insert(std::make_pair("R", std::move(r_channel)));
+        channels.insert(std::make_pair("G", std::move(g_channel)));
+        channels.insert(std::make_pair("B", std::move(b_channel)));
+        ppm->setChannels(channels);
 //        TODO: delete this
-        for (u32 i = 0; i < N; i++) {
-            if (r_channel->at(i) != 0)
-                std::cout << std::to_string(i) << ": " << r_channel->at(i) << "\n";
-        }
+//        for (u32 i = 0; i < N; i++) {
+//            if (r_channel->at(i) != 0)
+//                std::cout << std::to_string(i) << ": " << r_channel->at(i) << "\n";
+//        }
     }
 
     return ppm;
 }
 
+void NetPBM_IO::writePPMtoFile(std::unique_ptr<PPM> ppm, const std::string &path) {
+    std::ofstream file(path, std::ios::binary);
+    if (!file) {
+        throw std::runtime_error("Cannot access file: " + path);
+    }
+    std::string file_signature = ppm->getFileSignature();
+    u32 width = ppm->getWidth();
+    u32 height = ppm->getHeight();
+    u8 channel_count = ppm->getChannels().size();
+//    std:: cout << std::to_string(channel_count);
 
+    file << file_signature;
+    std::vector<u8> pixel_buffer(channel_count * height * width);
+
+    auto r_channel = ppm->getChannel("R");
+    auto g_channel = ppm->getChannel("G");
+    auto b_channel = ppm->getChannel("B");
+
+    u32  N = r_channel->size();
+    flag non_zero = false;
+    for (u32 i = 0; i < N; i++) {
+        pixel_buffer.at(i * 3 + 0) = r_channel->at(i);
+        if (r_channel->at(i) != 0) non_zero = true;
+        pixel_buffer.at(i * 3 + 1) = g_channel->at(i);
+        if (g_channel->at(i) != 0) non_zero = true;
+        pixel_buffer.at(i * 3 + 2) = b_channel->at(i);
+        if (b_channel->at(i) != 0) non_zero = true;
+    }
+    std::cout << std::to_string(non_zero);
+
+    file.write(reinterpret_cast<const char *>(pixel_buffer.data()), pixel_buffer.size());
+
+    return;
+}
 

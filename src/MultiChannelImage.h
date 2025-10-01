@@ -24,8 +24,6 @@ private:
     std::map<std::string, Channel<T> *> channels;
 
 public:
-    //NOTE: see what makes more sense design-wise (security)
-
     Channel<T> * getChannel(const std::string &key) {
         auto iter = this->channels.find(key);
         if (iter != this->channels.end()) {
@@ -41,8 +39,6 @@ public:
         //NOTE: does it throw a runtime exception if it fails? or does it fail silently
     }
 
-    //NOTE: does it make sense to make a copy? why?
-    //NOTE: do I even need this?
     const std::map<std::string, Channel<T> *> &getChannels() const {
         return channels;
     }

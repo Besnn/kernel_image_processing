@@ -13,7 +13,6 @@
 
 namespace Kernel {
 
-    //TODO: implement kernel
     struct Kernel {
     public:
         u32 height;
@@ -28,7 +27,6 @@ namespace Kernel {
         int y_padding = k_height / 2;
         int x_padding = k_width / 2;
 
-        //FIXME: how do I fucking copy this vector of vectors toasdasdas`d asd
         Channel<T> * output = new Channel<T>(*channel);
 
         for (int y = 0; y < channel_height; ++y) {
@@ -39,7 +37,7 @@ namespace Kernel {
                     for (int kx = 0; kx < k_width; ++kx) {
                         int ix = x + kx - x_padding;
                         int iy = y + ky - y_padding;
-                        //FIXME: 1 Oct 2025 --- EXC_BAD_ACCESS
+
                         if (ix >= 0 && ix < channel_width && iy >= 0 && iy < channel_height) {
                                 acc += (*channel)[ix + channel_width * iy] * kernel->kernel[ky][kx];
 //                                std::cout << "channel[" << iy << "][" << ix << "] = " << int((*channel)[ix + channel_width * iy])

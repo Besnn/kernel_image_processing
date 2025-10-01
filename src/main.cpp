@@ -4,7 +4,7 @@
 #include "NetPBM_IO.h"
 #include "kernel.h"
 
-//TODO: add factory for images
+
 int main()
 {
     std::vector<std::string> channel_keys{"R", "G", "B"};

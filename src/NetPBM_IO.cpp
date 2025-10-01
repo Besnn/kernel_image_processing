@@ -26,7 +26,7 @@ PPM * NetPBM_IO::readPPMfromFile(const std::string &path) {
     if (!file) {
         throw std::runtime_error("Cannot access file: " + path);
     }
-    //FIXME: make it only for PPM files
+
     std::string magic;
     file >> magic;
     if (magic.size() != 2 || magic[0] != 'P') {
@@ -36,7 +36,7 @@ PPM * NetPBM_IO::readPPMfromFile(const std::string &path) {
     if (format < 1 || format > 6) {
         throw std::runtime_error("Unsupported Netpbm format: " + magic);
     }
-    //FIXME: make this function a wrapper that calls a specialized function (u8 or u16)
+
     skipComments(file);
 
     u32 width = 0;
@@ -103,19 +103,11 @@ PPM * NetPBM_IO::readPPMfromFile(const std::string &path) {
             (*g_channel)[i] = pixel_buffer[i * 3 + 1];
             (*b_channel)[i] = pixel_buffer[i * 3 + 2];
         }
-        //NOTE: soooo??
-//        auto channels = std::map<std::string, Channel<u8> *>();
-//        channels.insert(std::make_pair("R", r_channel));
-//        channels.insert(std::make_pair("G", g_channel));
-//        channels.insert(std::make_pair("B", b_channel));
+
+
         ppm->setChannel("R", r_channel);
         ppm->setChannel("G", g_channel);
         ppm->setChannel("B", b_channel);
-//        auto iter = ppm->getChannels();
-////        TODO: delete this
-//        for (u32 i = 0; i < N; i++) {
-//                std::cout << std::to_string(i) << ": " << (*r_channel)[i] << "\n";
-//        }
     }
 
     return ppm;
@@ -140,7 +132,6 @@ void NetPBM_IO::writePPMtoFile(PPM * ppm, const std::string &path) {
     auto g_channel = ppm->getChannel("G");
     auto b_channel = ppm->getChannel("B");
 
-    //TODO: actually set the channels
     u32 N = r_channel->size();
     u32 i = 0;
 //    try {

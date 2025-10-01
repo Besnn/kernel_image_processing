@@ -39,7 +39,7 @@ public:
         //NOTE: does it throw a runtime exception if it fails? or does it fail silently
     }
 
-    const std::map<std::string, Channel<T> *> &getChannels() const {
+    const std::map<std::string, Channel<T> *> getChannels() const {
         return channels;
     }
 

@@ -22,6 +22,6 @@ typedef double f64;
 
 typedef bool  flag;
 
-typedef wchar_t widechar;
+typedef char16_t widechar;
 
 #endif //KERNEL_IMAGE_PROCESSING_TYPES_H

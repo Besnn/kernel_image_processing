@@ -9,7 +9,7 @@ int main()
 {
     std::vector<std::string> channel_keys{"R", "G", "B"};
     auto mchi = new MultiChannelImage<3, u8>(1000, 1000, channel_keys);
-    auto pgm = NetpbmImageFactory::createPGM(1000, 1000);
+    auto pgm = NetPBM_IO::readPGMfromFile("../examples/11zon_example_1.pgm");
     auto ppm = NetPBM_IO::readPPMfromFile("../examples/example_0.ppm");
     std::vector<std::vector<f32>> blur_kernel = {
             {1.f / 9, 1.f / 9, 1.f / 9},
@@ -26,6 +26,12 @@ int main()
     k_wrapper->width = 3;
     k_wrapper->kernel = sharpen_kernel;
 
-    Kernel::apply(ppm, k_wrapper);
-    NetPBM_IO::writePPMtoFile(ppm, "../examples/test2.ppm");
+    Kernel::apply(pgm, k_wrapper);
+    flag all_zeros = true;
+    auto channel = pgm->getChannel("Gray");
+    auto ch_size = channel->size();
+    for (u32 i = 0; i < ch_size; i++) {
+        if ((*channel)[i] != 0) all_zeros = false;
+    }
+    NetPBM_IO::writePGMtoFile(pgm, "../examples/test5.pgm");
 }

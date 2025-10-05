@@ -98,7 +98,9 @@ MultiChannelImage<channel_num, T>::MultiChannelImage(u32 width, u32 height,
 
 template<u8 channel_num, typename T>
 MultiChannelImage<channel_num, T>::~MultiChannelImage() {
-    //empty
+    for (auto const& [key, channel_ptr] : this->channels) {
+        delete channel_ptr;
+    }
 }
 
 //TODO: add special case of getChannel: no need for argument when there's only one channel

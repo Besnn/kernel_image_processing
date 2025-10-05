@@ -7,7 +7,7 @@ if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Debug)
 endif()
 
-set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g")
+set(CMAKE_CXX_FLAGS_DEBUG "-O0 -g -stdlib=libc++")
 
 
 include_directories(${CMAKE_SOURCE_DIR})
@@ -28,7 +28,6 @@ target_include_directories(kernel INTERFACE ${CMAKE_SOURCE_DIR}/src)
 
 # Main
 add_executable(Kernel_Image_Processing src/main.cpp
-        src/kernel.cpp
         src/NetpbmImageFactory.cpp
         src/NetpbmImageFactory.h
         src/NetPBM_IO.cpp
@@ -36,7 +35,7 @@ add_executable(Kernel_Image_Processing src/main.cpp
 target_link_libraries(Kernel_Image_Processing PRIVATE kernel)
 
 # Test
-add_executable(Test tests/test_example.cpp
+add_executable(Test
         src/NetPBM_IO.h
         src/MultiChannelImage.h
         tests/pbm_factory_test.cpp

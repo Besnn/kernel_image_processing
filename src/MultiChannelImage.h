@@ -46,7 +46,7 @@ public:
     u32 getHeight() const {
         return height;
     }
-
+    //TODO: resize channels
     void setHeight(u32 height) {
         MultiChannelImage::height = height;
     }
@@ -55,6 +55,7 @@ public:
         return width;
     }
 
+    //TODO: resize channels
     void setWidth(u32 width) {
         MultiChannelImage::width = width;
     }
@@ -68,6 +69,7 @@ public:
     }
 
 public:
+  //TODO: release memory allocated to channels
     ~MultiChannelImage();
 };
 
@@ -93,5 +95,7 @@ template<u8 channel_num, typename T>
 MultiChannelImage<channel_num, T>::~MultiChannelImage() {
     //empty
 }
+
+//TODO: add special case of getChannel: no need for argument when there's only one channel
 
 #endif //MULTICHANNELIMAGE_H

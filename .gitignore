@@ -5,3 +5,4 @@ cmake-build-debug
 # misc
 tmp
 _.CMakeLists.txt
+.DS_STORE

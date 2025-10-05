@@ -55,3 +55,21 @@ TEST(pgm_unit_tests, getting_nonexisting_channel_returns_nullptr) {
     EXPECT_TRUE(a_channel == nullptr);
     delete pgm;
 }
+
+TEST(pgm_unit_tests, setting_height_resizes_channels) {
+    auto pgm = NetpbmImageFactory::createPGM(20, 20);
+    pgm->setHeight(100);
+    EXPECT_EQ(pgm->getHeight(), 100);
+    auto gray_channel = pgm->getChannel("Gray");
+    EXPECT_EQ(gray_channel->size(), 20 * 100);
+    delete pgm;
+}
+
+TEST(pgm_unit_tests, setting_width_resizes_channels) {
+    auto pgm = NetpbmImageFactory::createPGM(20, 20);
+    pgm->setWidth(100);
+    EXPECT_EQ(pgm->getWidth(), 100);
+    auto gray_channel = pgm->getChannel("Gray");
+    EXPECT_EQ(gray_channel->size(), 20 * 100);
+    delete pgm;
+}

@@ -46,18 +46,23 @@ public:
     u32 getHeight() const {
         return height;
     }
-    //TODO: resize channels
+
     void setHeight(u32 height) {
         MultiChannelImage::height = height;
+        for (const auto& [name, channel_ptr] : this->channels) {
+            channel_ptr->resize(width * height);
+        }
     }
 
     u32 getWidth() const {
         return width;
     }
 
-    //TODO: resize channels
     void setWidth(u32 width) {
         MultiChannelImage::width = width;
+        for (const auto& [name, channel_ptr] : this->channels) {
+            channel_ptr->resize(width * height);
+        }
     }
 
     const std::string &getFileSignature() const {

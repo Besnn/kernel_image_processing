@@ -68,4 +68,28 @@ TEST(ppm_unit_tests, getting_nonexisting_channel_returns_nullptr) {
     delete ppm;
 }
 
-//TODO: test setWidth and setHeight for resize
+TEST(ppm_unit_tests, setting_height_resizes_channels) {
+    auto ppm = NetpbmImageFactory::createPPM(20, 20);
+    ppm->setHeight(100);
+    EXPECT_EQ(ppm->getHeight(), 100);
+    auto r_channel = ppm->getChannel("R");
+    EXPECT_EQ(r_channel->size(), 20 * 100);
+    auto g_channel = ppm->getChannel("G");
+    EXPECT_EQ(g_channel->size(), 20 * 100);
+    auto b_channel = ppm->getChannel("B");
+    EXPECT_EQ(b_channel->size(), 20 * 100);
+    delete ppm;
+}
+
+TEST(ppm_unit_tests, setting_width_resizes_channels) {
+    auto ppm = NetpbmImageFactory::createPPM(20, 20);
+    ppm->setWidth(100);
+    EXPECT_EQ(ppm->getWidth(), 100);
+    auto r_channel = ppm->getChannel("R");
+    EXPECT_EQ(r_channel->size(), 20 * 100);
+    auto g_channel = ppm->getChannel("G");
+    EXPECT_EQ(g_channel->size(), 20 * 100);
+    auto b_channel = ppm->getChannel("B");
+    EXPECT_EQ(b_channel->size(), 20 * 100);
+    delete ppm;
+}

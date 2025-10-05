@@ -40,14 +40,11 @@ namespace Kernel {
 
                         if (ix >= 0 && ix < channel_width && iy >= 0 && iy < channel_height) {
                                 acc += (*channel)[ix + channel_width * iy] * kernel->kernel[ky][kx];
-//                                std::cout << "channel[" << iy << "][" << ix << "] = " << int((*channel)[ix + channel_width * iy])
-//                                      << ", kernel = " << kernel->kernel[ky][kx] << "\n";
                         }
                     }
                 }
                 int output_index = y * channel_width + x;
                 (*output)[output_index] = static_cast<T>(std::clamp(acc, 0.f, 255.f));
-//                std::cout << "acc = " << acc << " at (" << y << ", " << x << ")\n";
             }
         }
 

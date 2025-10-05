@@ -43,10 +43,6 @@ public:
         return channels;
     }
 
-//    void setChannels(std::map<std::string, std::unique_ptr<Channel<T>>> channels) {
-//        MultiChannelImage::channels = channels;
-//    }
-
     u32 getHeight() const {
         return height;
     }

@@ -58,9 +58,6 @@ PPM * NetPBM_IO::readPPMfromFile(const std::string &path) {
 
     auto ppm = NetpbmImageFactory::createPPM(width, height, maxVal);
 
-//    ppm->setWidth(width);
-//    ppm->setHeight(height);
-
     std::string file_signature =
             magic +
             "\n" +
@@ -122,7 +119,6 @@ void NetPBM_IO::writePPMtoFile(PPM * ppm, const std::string &path) {
     u32 width = ppm->getWidth();
     u32 height = ppm->getHeight();
     u8 channel_count = ppm->getChannels().size();
-//    std:: cout << std::to_string(channel_count);
 
     file << file_signature;
     std::vector<u8> pixel_buffer;
@@ -134,26 +130,12 @@ void NetPBM_IO::writePPMtoFile(PPM * ppm, const std::string &path) {
 
     u32 N = r_channel->size();
     u32 i = 0;
-//    try {
-        for (; i < N; i++) {
-            pixel_buffer[i * 3 + 0] = (*r_channel)[i];
-            pixel_buffer[i * 3 + 1] = (*g_channel)[i];
-            pixel_buffer[i * 3 + 2] = (*b_channel)[i];
-        }
-//    } catch (...) {
-//        std::cout << std::to_string(i);
-//    }
-//    u32  n = r_channel->size();
-//    flag non_zero = false;
-//    for (u32 i = 0; i < n; i++) {
-//        pixel_buffer.at(i * 3 + 0) = r_channel->at(i);
-//        if (r_channel->at(i) != 0) non_zero = true;
-//        pixel_buffer.at(i * 3 + 1) = g_channel->at(i);
-//        if (g_channel->at(i) != 0) non_zero = true;
-//        pixel_buffer.at(i * 3 + 2) = b_channel->at(i);
-//        if (b_channel->at(i) != 0) non_zero = true;
-//    }
-//    std::cout << std::to_string(non_zero);
+    for (; i < N; i++) {
+        pixel_buffer[i * 3 + 0] = (*r_channel)[i];
+        pixel_buffer[i * 3 + 1] = (*g_channel)[i];
+        pixel_buffer[i * 3 + 2] = (*b_channel)[i];
+    }
+
 
     file.write(reinterpret_cast<char *>(pixel_buffer.data()), pixel_buffer.size());
 

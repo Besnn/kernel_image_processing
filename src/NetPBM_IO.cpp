@@ -23,19 +23,17 @@ void NetPBM_IO::skipComments(std::istream &is) {
 
 PPM * NetPBM_IO::readPPMfromFile(const std::string &path) {
     std::ifstream file(path, std::ios::binary);
-    if (!file) {
+    if (!file)
         throw std::runtime_error("Cannot access file: " + path);
-    }
 
     std::string magic;
     file >> magic;
-    if (magic.size() != 2 || magic[0] != 'P') {
+    if (magic.size() != 2 || magic[0] != 'P')
         throw std::runtime_error("Invalid Netpbm magic number");
-    }
+
     int format = magic[1] - '0';
-    if (format < 1 || format > 6) {
-        throw std::runtime_error("Unsupported Netpbm format: " + magic);
-    }
+    if (format != 3 && format != 6)
+        throw std::runtime_error("Unsupported PPM format: " + magic);
 
     skipComments(file);
 
@@ -46,69 +44,64 @@ PPM * NetPBM_IO::readPPMfromFile(const std::string &path) {
     file >> width;
     skipComments(file);
     file >> height;
+    skipComments(file);
+    file >> maxVal;
 
-    if (format != 1 && format != 4) { // Not PBM
-        skipComments(file);
-        file >> maxVal;
-    }
+    if (maxVal != 255)
+        throw std::runtime_error("Only 8-bit PPM (maxVal=255) supported");
 
-    if (maxVal != 255) throw std::runtime_error("Color depth not supported; maxVal=" + std::to_string(maxVal));
-
-    file.get(); // Eat one whitespace/newline after header
+    file.get(); // consume trailing newline/space after header
 
     auto ppm = NetpbmImageFactory::createPPM(width, height, maxVal);
 
     std::string file_signature =
-            magic +
-            "\n" +
-            std::to_string(width) +
-            " " +
-            std::to_string(height) +
-            "\n" +
-            std::to_string(maxVal) +
-            "\n";
+      magic + "\n" +
+      std::to_string(width) + " " + std::to_string(height) + "\n" +
+      std::to_string(maxVal) + "\n";
 
     ppm->setFileSignature(file_signature);
 
     const u8 channel_count = 3;
+    const u32 N = width * height;
 
-    std::vector<u8> pixel_buffer;
-    pixel_buffer.resize(channel_count * width * height);
+    auto r_channel = new Channel<u8>(N);
+    auto g_channel = new Channel<u8>(N);
+    auto b_channel = new Channel<u8>(N);
 
-    if (format == 1 || format == 2 || format == 3) {
-        // ASCII formats
-//        for (u32 i = 0; i < width * height; ++i) {
-//            u16 val;
-//            file >> val;
-//            img.pixels[i] = static_cast<unsigned char>(val);
-//        }
-    } else {
-        // Binary formats
-//        std::vector<u8> * pixel_buffer = new std::vector<u8>(width * height);
-        file.read(reinterpret_cast<char *>(pixel_buffer.data()), channel_count * width * height * sizeof(u8));
+    if (format == 3) {
+        // -------- ASCII PPM (P3) --------
+        for (u32 i = 0; i < N; ++i) {
+            int r, g, b;
+            file >> r >> g >> b;
+            if (file.fail())
+                throw std::runtime_error("Unexpected end of ASCII PPM data");
 
-        if (!file) {
-            throw std::runtime_error("File ended before expected pixel data");
+            (*r_channel)[i] = static_cast<u8>(r);
+            (*g_channel)[i] = static_cast<u8>(g);
+            (*b_channel)[i] = static_cast<u8>(b);
         }
-        auto r_channel = new Channel<u8>(width * height);
-        auto g_channel = new Channel<u8>(width * height);
-        auto b_channel = new Channel<u8>(width * height);
+    } else {
+        // -------- Binary PPM (P6) --------
+        std::vector<u8> pixel_buffer(channel_count * N);
+        file.read(reinterpret_cast<char*>(pixel_buffer.data()), channel_count * N);
 
-        u32 N = r_channel->size();
+        if (!file)
+            throw std::runtime_error("File ended before expected pixel data");
+
         for (u32 i = 0; i < N; ++i) {
             (*r_channel)[i] = pixel_buffer[i * 3 + 0];
             (*g_channel)[i] = pixel_buffer[i * 3 + 1];
             (*b_channel)[i] = pixel_buffer[i * 3 + 2];
         }
-
-
-        ppm->setChannel("R", r_channel);
-        ppm->setChannel("G", g_channel);
-        ppm->setChannel("B", b_channel);
     }
+
+    ppm->setChannel("R", r_channel);
+    ppm->setChannel("G", g_channel);
+    ppm->setChannel("B", b_channel);
 
     return ppm;
 }
+
 
 void NetPBM_IO::writePPMtoFile(PPM * ppm, const std::string &path) {
     std::ofstream file(path, std::ios::binary);

@@ -8,7 +8,7 @@
 int main()
 {
     std::vector<std::string> channel_keys{"R", "G", "B"};
-    auto mchi = new MultiChannelImage<3, u8>(1000, 1000, channel_keys);
+//    auto mchi = new MultiChannelImage<3, u8>(1000, 1000, channel_keys);
     auto pgm = NetPBM_IO::readPGMfromFile("../examples/11zon_example_1.pgm");
     auto ppm = NetPBM_IO::readPPMfromFile("../examples/example_0.ppm");
     auto pbm = NetPBM_IO::readPBMfromFile("../examples/example_0.pbm");
@@ -25,9 +25,9 @@ int main()
     auto k_wrapper = new Kernel::Kernel();
     k_wrapper->height = 3;
     k_wrapper->width = 3;
-    k_wrapper->kernel = sharpen_kernel;
+    k_wrapper->kernel = blur_kernel;
 
-    Kernel::apply(pgm, k_wrapper);
+    Kernel::apply(pbm, k_wrapper);
     flag all_zeros = true;
     auto channel = pbm->getChannel("BW");
     auto ch_size = channel->size();
@@ -36,4 +36,10 @@ int main()
     }
     std::cout << std::to_string(all_zeros);
     NetPBM_IO::writePBMtoFile(pbm, "../examples/test3.pbm");
+
+
+    delete pbm;
+    delete pgm;
+    delete ppm;
+    delete k_wrapper;
 }

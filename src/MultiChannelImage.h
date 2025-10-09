@@ -90,8 +90,8 @@ MultiChannelImage<channel_num, T>::MultiChannelImage(u32 width, u32 height,
 
     Channel<T> * channel;
     for (u8 i = 0; i < channel_num; i++) {
-        channel = new Channel<T>(width * width);
-        this->channels.emplace(channel_keys[i], std::move(channel));
+        channel = new Channel<T>(width * height);
+        this->channels.emplace(channel_keys[i], channel);
     }
 }
 

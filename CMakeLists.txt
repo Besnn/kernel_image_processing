@@ -45,6 +45,7 @@ add_executable(Test
         tests/pgm_factory_test.cpp
         src/test_utilities.hpp
         tests/netpbm_io_tests.cpp
+        tests/pbm_factory_test.cpp
 )
 target_link_libraries(Test PRIVATE gtest gtest_main kernel)
 #target_include_directories(

@@ -16,6 +16,7 @@ class NetpbmImageFactory {
 public:
     static PPM * createPPM(u32 width, u32 height, u32 maxVal=255);
     static PGM * createPGM(u32 width, u32 height, u32 maxVal=255);
+    static PBM * createPBM(u32 width, u32 height);
 };
 
 

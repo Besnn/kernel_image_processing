@@ -14,6 +14,12 @@ PGM * NetpbmImageFactory::createPGM(u32 width, u32 height, u32 maxVal) {
     return new PGM(width, height, gray_key);
 }
 
+PBM *NetpbmImageFactory::createPBM(u32 width, u32 height)
+{
+    auto bw_key = std::vector<std::string>{"BW"};
+    return new PBM(width, height, bw_key);
+}
+
 //NOTE:
 // C++ te kam dhjere,
 // s'te kuptova asnjehere

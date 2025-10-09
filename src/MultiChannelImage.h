@@ -74,7 +74,6 @@ public:
     }
 
 public:
-  //TODO: release memory allocated to channels
     ~MultiChannelImage();
 };
 

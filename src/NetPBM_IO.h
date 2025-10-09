@@ -15,6 +15,8 @@ public:
     static void writePPMtoFile(PPM * ppm, const std::string &path);
     static PGM * readPGMfromFile(const std::string &path);
     static void writePGMtoFile(PGM * pgm, const std::string &path);
+    static PBM * readPBMfromFile(const std::string &path);
+    static void writePBMtoFile(PBM * pbm, const std::string &path);
 
 private:
     static void skipComments(std::istream &is);

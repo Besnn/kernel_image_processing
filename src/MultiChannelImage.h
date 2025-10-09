@@ -34,6 +34,7 @@ public:
     void setChannel(const std::string key, Channel<T> * channel) {
         auto iter = this->channels.find(key);
         if (iter != this->channels.end()) {
+            delete iter->second;
             iter->second = channel;
         }
         //NOTE: does it throw a runtime exception if it fails? or does it fail silently

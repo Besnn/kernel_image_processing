@@ -14,6 +14,7 @@ TEST(netpbm_io_unit_tests,
       bool are_equal = TEST_HELPER::files_are_identical("../examples/example_0.ppm",
                                        "../tmp/netpbm_io_ppm_test.ppm");
       EXPECT_TRUE(are_equal);
+      delete ppm;
 }
 
 TEST(netpbm_io_unit_tests,
@@ -24,4 +25,16 @@ TEST(netpbm_io_unit_tests,
   bool are_equal = TEST_HELPER::files_are_identical("../examples/11zon_example_1.pgm",
                                                     "../tmp/netpbm_io_ppm_test.pgm");
   EXPECT_TRUE(are_equal);
+  delete pgm;
+}
+
+TEST(netpbm_io_unit_tests,
+     reading_and_writing_the_same_pbm_results_in_an_identical_copy)
+{
+  auto pbm = NetPBM_IO::readPBMfromFile("../examples/example_0.pbm");
+  NetPBM_IO::writePBMtoFile(pbm, "../tmp/netpbm_io_ppm_test.pbm");
+  bool are_equal = TEST_HELPER::files_are_identical("../examples/example_0.pbm",
+                                                    "../tmp/netpbm_io_ppm_test.pbm");
+  EXPECT_TRUE(are_equal);
+  delete pbm;
 }

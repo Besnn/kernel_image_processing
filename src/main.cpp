@@ -12,6 +12,7 @@ int main()
     auto pgm = NetPBM_IO::readPGMfromFile("../examples/11zon_example_1.pgm");
     auto ppm = NetPBM_IO::readPPMfromFile("../examples/sprite.ppm");
     auto pbm = NetPBM_IO::readPBMfromFile("../examples/example_1.pbm");
+    //FIXME: how do I apply kernel to P3? only if I convert it to P6 internally
     std::vector<std::vector<f32>> blur_kernel = {
             {1.f / 9, 1.f / 9, 1.f / 9},
             {1.f / 9, 1.f / 9, 1.f / 9},

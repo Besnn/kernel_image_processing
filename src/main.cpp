@@ -9,9 +9,9 @@ int main()
 {
     std::vector<std::string> channel_keys{"R", "G", "B"};
 //    auto mchi = new MultiChannelImage<3, u8>(1000, 1000, channel_keys);
-    auto pgm = NetPBM_IO::readPGMfromFile("../examples/11zon_example_1.pgm");
-    auto ppm = NetPBM_IO::readPPMfromFile("../examples/sprite.ppm");
-    auto pbm = NetPBM_IO::readPBMfromFile("../examples/example_1.pbm");
+    auto pgm = NetPBM_IO::readPGMfromFile("../examples/p5_example_1.pgm");
+    auto ppm = NetPBM_IO::readPPMfromFile("../examples/p3_example_sprite.ppm");
+    auto pbm = NetPBM_IO::readPBMfromFile("../examples/p4_example_1.pbm");
     //FIXME: how do I apply kernel to P3? only if I convert it to P6 internally
     std::vector<std::vector<f32>> blur_kernel = {
             {1.f / 9, 1.f / 9, 1.f / 9},

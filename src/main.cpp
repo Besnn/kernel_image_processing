@@ -26,9 +26,9 @@ int main()
     auto k_wrapper = new Kernel::Kernel();
     k_wrapper->height = 3;
     k_wrapper->width = 3;
-    k_wrapper->kernel = sharpen_kernel;
+    k_wrapper->kernel = blur_kernel;
 
-    Kernel::apply(pbm, k_wrapper);
+    Kernel::apply(ppm, k_wrapper);
     flag all_zeros = true;
     auto channel = pbm->getChannel("BW");
     auto ch_size = channel->size();
@@ -36,7 +36,7 @@ int main()
         if ((*channel)[i] != 0) all_zeros = false;
     }
     std::cout << std::to_string(all_zeros);
-    NetPBM_IO::writePBMtoFile(pbm, "../examples/test3.pbm");
+    NetPBM_IO::writePPMtoFile(ppm, "../examples/test3.pbm");
 
 
     delete pbm;

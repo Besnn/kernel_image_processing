@@ -102,38 +102,82 @@ PPM * NetPBM_IO::readPPMfromFile(const std::string &path) {
     return ppm;
 }
 
-
-void NetPBM_IO::writePPMtoFile(PPM * ppm, const std::string &path) {
+void NetPBM_IO::writePPMtoFile(PPM *ppm, const std::string &path) {
     std::ofstream file(path, std::ios::binary);
     if (!file) {
         throw std::runtime_error("Cannot access file: " + path);
     }
-    std::string file_signature = ppm->getFileSignature();
-    u32 width = ppm->getWidth();
-    u32 height = ppm->getHeight();
-    u8 channel_count = ppm->getChannels().size();
 
+    const std::string file_signature = ppm->getFileSignature();
+    const u32 width  = ppm->getWidth();
+    const u32 height = ppm->getHeight();
+
+    // Validate magic
+    if (file_signature.size() < 2 || file_signature[0] != 'P' ||
+        (file_signature[1] != '3' && file_signature[1] != '6')) {
+        throw std::runtime_error("PPM writer: invalid or unsupported magic in file signature");
+    }
+
+    // Write header exactly as provided (should already contain width/height/maxVal + trailing newline)
     file << file_signature;
-    std::vector<u8> pixel_buffer;
-    pixel_buffer.resize(channel_count * height * width);
 
+    // Fetch channels
     auto r_channel = ppm->getChannel("R");
     auto g_channel = ppm->getChannel("G");
     auto b_channel = ppm->getChannel("B");
-
-    u32 N = r_channel->size();
-    u32 i = 0;
-    for (; i < N; i++) {
-        pixel_buffer[i * 3 + 0] = (*r_channel)[i];
-        pixel_buffer[i * 3 + 1] = (*g_channel)[i];
-        pixel_buffer[i * 3 + 2] = (*b_channel)[i];
+    if (!r_channel || !g_channel || !b_channel) {
+        throw std::runtime_error("PPM writer: missing one or more RGB channels");
     }
 
+    const u32 N = r_channel->size();
+    if (g_channel->size() != N || b_channel->size() != N || N != width * height) {
+        throw std::runtime_error("PPM writer: channel size mismatch");
+    }
 
-    file.write(reinterpret_cast<char *>(pixel_buffer.data()), pixel_buffer.size());
+    const bool ascii = (file_signature[1] == '3');
 
-    return;
+    if (ascii) {
+        // -------- P3 (ASCII) --------
+        // Netpbm allows arbitrary whitespace; we’ll write rows for readability.
+        // Optional: wrap lines roughly every 5 pixels to keep them short.
+        const u32 wrap_pixels = 5;
+        u32 col_count = 0;
+
+        for (u32 i = 0; i < N; ++i) {
+            int r = static_cast<unsigned int>((*r_channel)[i]);
+            int g = static_cast<unsigned int>((*g_channel)[i]);
+            int b = static_cast<unsigned int>((*b_channel)[i]);
+
+            // Write "r g b" triplet
+            file << r << ' ' << g << ' ' << b;
+
+            // Spacing / wrapping
+            ++col_count;
+            if (col_count % wrap_pixels == 0 || (i + 1) % width == 0) {
+                file << '\n';
+            } else {
+                file << ' ';
+            }
+        }
+    } else {
+        // -------- P6 (Binary) --------
+        std::vector<u8> pixel_buffer;
+        pixel_buffer.resize(3 * N);
+
+        for (u32 i = 0; i < N; ++i) {
+            pixel_buffer[i * 3 + 0] = (*r_channel)[i];
+            pixel_buffer[i * 3 + 1] = (*g_channel)[i];
+            pixel_buffer[i * 3 + 2] = (*b_channel)[i];
+        }
+
+        file.write(reinterpret_cast<const char*>(pixel_buffer.data()), pixel_buffer.size());
+    }
+
+    if (!file) {
+        throw std::runtime_error("PPM writer: write failed");
+    }
 }
+
 
 PGM *NetPBM_IO::readPGMfromFile(const std::string &path)
 {

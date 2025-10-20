@@ -314,30 +314,33 @@ PBM *NetPBM_IO::readPBMfromFile(const std::string &path)
     skipComments(file);
     file >> height;
 
-    file.get(); // consume trailing whitespace/newline
+    file.get();
 
     auto pbm = NetpbmImageFactory::createPBM(width, height);
 
     std::string file_signature =
-      magic + "\n" +
-      std::to_string(width) + " " + std::to_string(height) + "\n";
+            magic + "\n" +
+            std::to_string(width) + " " + std::to_string(height) + "\n";
     pbm->setFileSignature(file_signature);
 
     auto mono_channel = new Channel<bool>(width * height);
 
     if (format == 1) {
-        // ASCII PBM
-        for (u32 i = 0; i < width * height; ++i) {
+        // -------- ASCII PBM (P1) --------
+        const u32 N = width * height;
+        for (u32 i = 0; i < N; ++i) {
+            skipComments(file);
             int bit;
             file >> bit;
             if (file.fail())
                 throw std::runtime_error("Unexpected end of ASCII PBM data");
-
-            (*mono_channel)[i] = static_cast<bool>(bit);
+            if (bit != 0 && bit != 1)
+                throw std::runtime_error("Invalid PBM ASCII pixel (expected 0 or 1)");
+            (*mono_channel)[i] = (bit == 1);
         }
     } else {
-        // Binary PBM (P4)
-        size_t row_bytes = (width + 7) / 8;
+        // -------- Binary PBM (P4) --------
+        const size_t row_bytes = (width + 7) / 8;
         std::vector<u8> row_buffer(row_bytes);
 
         for (u32 y = 0; y < height; ++y) {
@@ -365,32 +368,30 @@ void NetPBM_IO::writePBMtoFile(PBM *pbm, const std::string &path)
     }
 
     const std::string file_signature = pbm->getFileSignature();
-    const u32 width = pbm->getWidth();
+    const u32 width  = pbm->getWidth();
     const u32 height = pbm->getHeight();
 
-    // Validate magic number
     if (file_signature.size() < 2 || file_signature[0] != 'P' ||
         (file_signature[1] != '1' && file_signature[1] != '4')) {
-        throw std::runtime_error("Invalid or missing PBM file signature");
+        throw std::runtime_error("PBM writer: invalid or unsupported magic in file signature");
     }
 
-    file << file_signature; // already includes \n after header typically
+    file << file_signature;
 
-    // Retrieve channel
-    auto mono_channel = pbm->getChannel("BW");
-    if (!mono_channel) {
-        throw std::runtime_error("PBM missing Mono channel");
+    auto bw_channel = pbm->getChannel("BW");
+    if (!bw_channel) {
+        throw std::runtime_error("PBM writer: missing BW channel");
     }
 
-//    const u32 N = mono_channel->size();
-//    if (N != width * height) {
-//        throw std::runtime_error("PBM channel size mismatch");
-//    }
+    const u32 N = bw_channel->size();
+    if (N != width * height) {
+        throw std::runtime_error("PBM writer: channel size mismatch");
+    }
 
-    bool binary = (file_signature[1] == '4');
+    const bool binary = (file_signature[1] == '4');
 
     if (binary) {
-        // ---- Binary PBM (P4) ----
+        // -------- P4 (Binary) --------
         const size_t row_bytes = (width + 7) / 8;
         std::vector<u8> row_buffer(row_bytes);
 
@@ -399,38 +400,35 @@ void NetPBM_IO::writePBMtoFile(PBM *pbm, const std::string &path)
 
             for (u32 x = 0; x < width; ++x) {
                 bool bit;
-                if constexpr (std::is_same_v<typename Channel<bool>::value_type, bool>)
-                    bit = (*mono_channel)[y * width + x];
-                else
-                    bit = ((*mono_channel)[y * width + x] > 127);
-
+                bit = (*bw_channel)[y * width + x];
                 if (bit)
                     row_buffer[x / 8] |= (0x80 >> (x % 8));
             }
 
-            file.write(reinterpret_cast<char*>(row_buffer.data()), row_bytes);
+            file.write(reinterpret_cast<const char*>(row_buffer.data()), row_bytes);
         }
     } else {
-        // ---- ASCII PBM (P1) ----
-        for (u32 y = 0; y < height; ++y) {
-            for (u32 x = 0; x < width; ++x) {
-                bool bit;
-                if constexpr (std::is_same_v<typename Channel<bool>::value_type, bool>)
-                    bit = (*mono_channel)[y * width + x];
-                else
-                    bit = ((*mono_channel)[y * width + x] > 127);
+        // -------- P1 (ASCII) --------
+        const u32 wrap_pixels = 20;
+        u32 pixel_in_line = 0;
 
-                file << (bit ? '1' : '0');
-                if (x < width - 1)
-                    file << ' ';
+        for (u32 i = 0; i < N; ++i) {
+            bool bit;
+            bit = (*bw_channel)[i];
+
+            file << (bit ? '1' : '0');
+            ++pixel_in_line;
+
+            if (pixel_in_line == wrap_pixels || (i + 1) % width == 0) {
+                file << '\n';
+                pixel_in_line = 0;
+            } else {
+                file << ' ';
             }
-            file << '\n';
         }
     }
 
     if (!file) {
-        throw std::runtime_error("Failed writing PBM to file: " + path);
+        throw std::runtime_error("PBM writer: write failed (" + path + ")");
     }
 }
-
-

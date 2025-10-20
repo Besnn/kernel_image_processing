@@ -18,7 +18,16 @@ namespace Kernel {
         u32 height;
         u32 width;
         std::vector<std::vector<f32>> kernel;
+    public:
+        Kernel(std::vector<std::vector<f32>> kernel, u8 width, u8 height)
+        : height(height), width(width), kernel(kernel) {}
+        Kernel(std::vector<std::vector<f32>> kernel)
+        : kernel(kernel) {
+            this->height = kernel.size();
+            this->width = kernel.data()->size();
+        }
     };
+
 
     template<typename T>
     static Channel<T> * apply(Channel<T> * channel, u32 channel_height, u32 channel_width, const Kernel * kernel) {

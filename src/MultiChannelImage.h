@@ -37,7 +37,6 @@ public:
             delete iter->second;
             iter->second = channel;
         }
-        //NOTE: does it throw a runtime exception if it fails? or does it fail silently
     }
 
     const std::map<std::string, Channel<T> *> getChannels() const {
@@ -102,7 +101,5 @@ MultiChannelImage<channel_num, T>::~MultiChannelImage() {
         delete channel_ptr;
     }
 }
-
-//TODO: add special case of getChannel: no need for argument when there's only one channel
 
 #endif //MULTICHANNELIMAGE_H

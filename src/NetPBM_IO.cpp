@@ -112,16 +112,13 @@ void NetPBM_IO::writePPMtoFile(PPM *ppm, const std::string &path) {
     const u32 width  = ppm->getWidth();
     const u32 height = ppm->getHeight();
 
-    // Validate magic
     if (file_signature.size() < 2 || file_signature[0] != 'P' ||
         (file_signature[1] != '3' && file_signature[1] != '6')) {
         throw std::runtime_error("PPM writer: invalid or unsupported magic in file signature");
     }
 
-    // Write header exactly as provided (should already contain width/height/maxVal + trailing newline)
     file << file_signature;
 
-    // Fetch channels
     auto r_channel = ppm->getChannel("R");
     auto g_channel = ppm->getChannel("G");
     auto b_channel = ppm->getChannel("B");
@@ -138,26 +135,12 @@ void NetPBM_IO::writePPMtoFile(PPM *ppm, const std::string &path) {
 
     if (ascii) {
         // -------- P3 (ASCII) --------
-        // Netpbm allows arbitrary whitespace; we’ll write rows for readability.
-        // Optional: wrap lines roughly every 5 pixels to keep them short.
-        const u32 wrap_pixels = 5;
-        u32 col_count = 0;
-
         for (u32 i = 0; i < N; ++i) {
             int r = static_cast<unsigned int>((*r_channel)[i]);
             int g = static_cast<unsigned int>((*g_channel)[i]);
             int b = static_cast<unsigned int>((*b_channel)[i]);
 
-            // Write "r g b" triplet
-            file << r << ' ' << g << ' ' << b;
-
-            // Spacing / wrapping
-            ++col_count;
-            if (col_count % wrap_pixels == 0 || (i + 1) % width == 0) {
-                file << '\n';
-            } else {
-                file << ' ';
-            }
+            file << r << ' ' << g << ' ' << b << ' ';
         }
     } else {
         // -------- P6 (Binary) --------
@@ -178,23 +161,21 @@ void NetPBM_IO::writePPMtoFile(PPM *ppm, const std::string &path) {
     }
 }
 
-
 PGM *NetPBM_IO::readPGMfromFile(const std::string &path)
 {
     std::ifstream file(path, std::ios::binary);
     if (!file) {
         throw std::runtime_error("Cannot access file: " + path);
     }
-    //TODO: refactor logic
 
     std::string magic;
     file >> magic;
     if (magic.size() != 2 || magic[0] != 'P') {
         throw std::runtime_error("Invalid Netpbm magic number");
     }
-    int format = magic[1] - '0';
-    if (format < 1 || format > 6) {
-        throw std::runtime_error("Unsupported Netpbm format: " + magic);
+    const int format = magic[1] - '0';
+    if (format != 2 && format != 5) {
+        throw std::runtime_error("Unsupported PGM format: " + magic);
     }
 
     skipComments(file);
@@ -206,89 +187,104 @@ PGM *NetPBM_IO::readPGMfromFile(const std::string &path)
     file >> width;
     skipComments(file);
     file >> height;
+    skipComments(file);
+    file >> maxVal;
 
-    if (format != 1 && format != 4) { // Not PBM
-        skipComments(file);
-        file >> maxVal;
+    if (maxVal != 255) {
+        throw std::runtime_error("Color depth not supported; maxVal=" + std::to_string(maxVal));
     }
 
-    if (maxVal != 255) throw std::runtime_error("Color depth not supported; maxVal=" + std::to_string(maxVal));
-
-    file.get(); // Eat one whitespace/newline after header
+    file.get();
 
     auto pgm = NetpbmImageFactory::createPGM(width, height, maxVal);
 
     std::string file_signature =
-      magic +
-      "\n" +
-      std::to_string(width) +
-      " " +
-      std::to_string(height) +
-      "\n" +
-      std::to_string(maxVal) +
-      "\n";
-
+            magic + "\n" +
+            std::to_string(width) + " " + std::to_string(height) + "\n" +
+            std::to_string(maxVal) + "\n";
     pgm->setFileSignature(file_signature);
 
-    std::vector<u8> pixel_buffer;
-    pixel_buffer.resize(width * height);
+    const u32 N = width * height;
+    auto gray_channel = new Channel<u8>(N);
 
-    if (format == 1 || format == 2 || format == 3) {
-        // ASCII formats
-//        for (u32 i = 0; i < width * height; ++i) {
-//            u16 val;
-//            file >> val;
-//            img.pixels[i] = static_cast<unsigned char>(val);
-//        }
+    if (format == 2) {
+        // -------- ASCII PGM (P2) --------
+        for (u32 i = 0; i < N; ++i) {
+            int v;
+            file >> v;
+            if (file.fail()) {
+                delete gray_channel;
+                throw std::runtime_error("Unexpected end of ASCII PGM data");
+            }
+            if (v < 0 || v > static_cast<int>(maxVal)) {
+                delete gray_channel;
+                throw std::runtime_error("PGM ASCII pixel out of range");
+            }
+            (*gray_channel)[i] = static_cast<u8>(v);
+        }
     } else {
-        // Binary formats
-//        std::vector<u8> * pixel_buffer = new std::vector<u8>(width * height);
-        file.read(reinterpret_cast<char *>(pixel_buffer.data()), width * height * sizeof(u8));
-
+        // -------- Binary PGM (P5) --------
+        std::vector<u8> pixel_buffer(N);
+        file.read(reinterpret_cast<char *>(pixel_buffer.data()), N);
         if (!file) {
             throw std::runtime_error("File ended before expected pixel data");
         }
-        auto gray_channel = new Channel<u8>(width * height);
-
-        u32 N = gray_channel->size();
         for (u32 i = 0; i < N; ++i) {
             (*gray_channel)[i] = pixel_buffer[i];
         }
-
-
-        pgm->setChannel("Gray", gray_channel);
     }
 
+    pgm->setChannel("Gray", gray_channel);
     return pgm;
 }
 
-void NetPBM_IO::writePGMtoFile(PGM * pgm, const std::string &path)
+void NetPBM_IO::writePGMtoFile(PGM *pgm, const std::string &path)
 {
     std::ofstream file(path, std::ios::binary);
     if (!file) {
         throw std::runtime_error("Cannot access file: " + path);
     }
-    std::string file_signature = pgm->getFileSignature();
-    u32 width = pgm->getWidth();
-    u32 height = pgm->getHeight();
-    u8 channel_count = pgm->getChannels().size();
 
-    file << file_signature;
-    std::vector<u8> pixel_buffer;
-    pixel_buffer.resize(channel_count * height * width);
+    const std::string file_signature = pgm->getFileSignature();
+    const u32 width  = pgm->getWidth();
+    const u32 height = pgm->getHeight();
 
-    auto gray_channel = pgm->getChannel("Gray");
-
-    u32 N = gray_channel->size();
-    u32 i = 0;
-    for (; i < N; i++) {
-        pixel_buffer[i] = (*gray_channel)[i];
+    if (file_signature.size() < 2 || file_signature[0] != 'P' ||
+        (file_signature[1] != '2' && file_signature[1] != '5')) {
+        throw std::runtime_error("PGM writer: invalid or unsupported magic in file signature");
     }
 
+    file << file_signature;
 
-    file.write(reinterpret_cast<char *>(pixel_buffer.data()), pixel_buffer.size());
+    auto gray_channel = pgm->getChannel("Gray");
+    if (!gray_channel) {
+        throw std::runtime_error("PGM writer: missing Gray channel");
+    }
+    const u32 N = gray_channel->size();
+    if (N != width * height) {
+        throw std::runtime_error("PGM writer: channel size mismatch");
+    }
 
-    return;
+    const bool ascii = (file_signature[1] == '2');
+
+    if (ascii) {
+        // -------- P2 (ASCII) --------
+        for (u32 i = 0; i < N; ++i) {
+            int v = static_cast<unsigned int>((*gray_channel)[i]);
+            file << v << ' ';
+        }
+    } else {
+        // -------- P5 (Binary) --------
+        std::vector<u8> pixel_buffer(N);
+        for (u32 i = 0; i < N; ++i) {
+            pixel_buffer[i] = (*gray_channel)[i];
+        }
+        file.write(reinterpret_cast<const char*>(pixel_buffer.data()), pixel_buffer.size());
+    }
+
+    if (!file) {
+        throw std::runtime_error("PGM writer: write failed");
+    }
 }
 
 PBM *NetPBM_IO::readPBMfromFile(const std::string &path)

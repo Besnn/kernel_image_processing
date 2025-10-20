@@ -3,6 +3,5 @@ cmake-build-debug
 # ignore clion
 .idea
 # misc
-tmp
 _.CMakeLists.txt
 .DS_STORE
